@@ -4,6 +4,7 @@ import com.atifi.library.book.exception.BookNotFoundException;
 import com.atifi.library.book.model.Book;
 import com.atifi.library.book.repository.BookRepository;
 import com.atifi.library.review.dto.request.CreateReviewRequest;
+import com.atifi.library.review.dto.request.ReviewFilter;
 import com.atifi.library.review.dto.request.UpdateReviewRequest;
 import com.atifi.library.review.dto.response.ReviewResponse;
 import com.atifi.library.review.exception.ReviewNotFoundException;
@@ -11,15 +12,34 @@ import com.atifi.library.review.mapper.ReviewMapper;
 import com.atifi.library.review.model.Review;
 import com.atifi.library.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.atifi.library.review.repository.ReviewSpecifications.commentContains;
+import static com.atifi.library.review.repository.ReviewSpecifications.hasAuthorId;
+import static com.atifi.library.review.repository.ReviewSpecifications.hasBookId;
+import static com.atifi.library.review.repository.ReviewSpecifications.hasComment;
+import static com.atifi.library.review.repository.ReviewSpecifications.minMaxRating;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
+
+    public List<ReviewResponse> findAll(ReviewFilter filters) {
+        Specification<Review> spec = Specification.where(minMaxRating(filters.minRating(), filters.maxRating())
+                .and(commentContains(filters.comment()))
+                .and(hasBookId(filters.bookId()))
+                .and(hasAuthorId(filters.authorId()))
+                .and(hasComment(filters.hasComment()))
+        );
+
+        List<Review> reviews = reviewRepository.findAll(spec);
+        return reviews.stream().map(ReviewMapper::toResponse).toList();
+    }
 
     public List<ReviewResponse> findByBookId(Integer id) {
         bookRepository.findById(id)
