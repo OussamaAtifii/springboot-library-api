@@ -1,5 +1,6 @@
 package com.atifi.library.author.controller;
 
+import com.atifi.library.author.dto.request.AuthorFilter;
 import com.atifi.library.author.dto.request.CreateAuthorRequest;
 import com.atifi.library.author.dto.request.UpdateAuthorRequest;
 import com.atifi.library.author.dto.response.AuthorResponse;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,8 +29,8 @@ public class AuthorController {
     private final AuthorService service;
 
     @GetMapping
-    public ResponseEntity<List<AuthorResponse>> findAll() {
-        List<AuthorResponse> authors = service.findAll();
+    public ResponseEntity<List<AuthorResponse>> findAll(@ModelAttribute AuthorFilter filters) {
+        List<AuthorResponse> authors = service.findAll(filters);
         return ResponseEntity.status(HttpStatus.OK).body(authors);
     }
 

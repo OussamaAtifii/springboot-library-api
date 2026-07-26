@@ -1,5 +1,6 @@
 package com.atifi.library.author.service;
 
+import com.atifi.library.author.dto.request.AuthorFilter;
 import com.atifi.library.author.dto.request.CreateAuthorRequest;
 import com.atifi.library.author.dto.request.UpdateAuthorRequest;
 import com.atifi.library.author.dto.response.AuthorResponse;
@@ -8,17 +9,24 @@ import com.atifi.library.author.mapper.AuthorMapper;
 import com.atifi.library.author.model.Author;
 import com.atifi.library.author.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.atifi.library.author.repository.AuthorSpecifications.hasName;
+import static com.atifi.library.author.repository.AuthorSpecifications.hasStatus;
 
 @Service
 @RequiredArgsConstructor
 public class AuthorService {
     private final AuthorRepository repository;
 
-    public List<AuthorResponse> findAll() {
-        List<Author> authors = repository.findAll();
+    public List<AuthorResponse> findAll(AuthorFilter filters) {
+        Specification<Author> spec = Specification.where(hasName(filters.name()))
+                .and(hasStatus(filters.country()));
+
+        List<Author> authors = repository.findAll(spec);
         return authors.stream().map(AuthorMapper::toResponse).toList();
     }
 
