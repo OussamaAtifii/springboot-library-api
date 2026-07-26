@@ -1,10 +1,9 @@
 package com.atifi.library.book.controller;
 
-import com.atifi.library.author.repository.AuthorRepository;
+import com.atifi.library.book.dto.request.BookFilter;
 import com.atifi.library.book.dto.request.CreateBookRequest;
 import com.atifi.library.book.dto.request.UpdateBookRequest;
 import com.atifi.library.book.dto.response.BookResponse;
-import com.atifi.library.book.repository.BookRepository;
 import com.atifi.library.book.service.BookService;
 import com.atifi.library.constants.ApiConstants;
 import jakarta.validation.Valid;
@@ -13,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,12 +27,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
     private final BookService service;
-    private final BookRepository bookRepository;
-    private final AuthorRepository authorRepository;
 
     @GetMapping
-    public ResponseEntity<List<BookResponse>> findAll() {
-        List<BookResponse> books = service.findAll();
+    public ResponseEntity<List<BookResponse>> findAll(@ModelAttribute BookFilter filters) {
+        List<BookResponse> books = service.findAll(filters);
         return ResponseEntity.status(HttpStatus.OK).body(books);
     }
 

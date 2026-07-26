@@ -3,6 +3,7 @@ package com.atifi.library.book.service;
 import com.atifi.library.author.exception.AuthorNotFoundException;
 import com.atifi.library.author.model.Author;
 import com.atifi.library.author.repository.AuthorRepository;
+import com.atifi.library.book.dto.request.BookFilter;
 import com.atifi.library.book.dto.request.CreateBookRequest;
 import com.atifi.library.book.dto.request.UpdateBookRequest;
 import com.atifi.library.book.dto.response.BookResponse;
@@ -12,9 +13,15 @@ import com.atifi.library.book.mapper.BookMapper;
 import com.atifi.library.book.model.Book;
 import com.atifi.library.book.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.atifi.library.book.repository.BookSpecifications.hasAuthorId;
+import static com.atifi.library.book.repository.BookSpecifications.hasIsbn;
+import static com.atifi.library.book.repository.BookSpecifications.hasTitle;
+import static com.atifi.library.book.repository.BookSpecifications.minMaxPrice;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +30,13 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
 
-    public List<BookResponse> findAll() {
-        List<Book> books = bookRepository.findAll();
+    public List<BookResponse> findAll(BookFilter filters) {
+        Specification<Book> spec = Specification.where(hasTitle(filters.title()))
+                .and(hasIsbn(filters.isbn()))
+                .and(minMaxPrice(filters.minPrice(), filters.maxPrice()))
+                .and(hasAuthorId(filters.authorId()));
+
+        List<Book> books = bookRepository.findAll(spec);
         return books.stream().map(BookMapper::toResponse).toList();
     }
 
