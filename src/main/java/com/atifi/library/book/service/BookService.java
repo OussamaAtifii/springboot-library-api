@@ -13,10 +13,10 @@ import com.atifi.library.book.mapper.BookMapper;
 import com.atifi.library.book.model.Book;
 import com.atifi.library.book.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static com.atifi.library.book.repository.BookSpecifications.hasAuthorId;
 import static com.atifi.library.book.repository.BookSpecifications.hasIsbn;
@@ -30,14 +30,14 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
 
-    public List<BookResponse> findAll(BookFilter filters) {
+    public Page<BookResponse> findAll(BookFilter filters, Pageable pageable) {
         Specification<Book> spec = Specification.where(hasTitle(filters.title()))
                 .and(hasIsbn(filters.isbn()))
                 .and(minMaxPrice(filters.minPrice(), filters.maxPrice()))
                 .and(hasAuthorId(filters.authorId()));
 
-        List<Book> books = bookRepository.findAll(spec);
-        return books.stream().map(BookMapper::toResponse).toList();
+        Page<Book> books = bookRepository.findAll(spec, pageable);
+        return books.map(BookMapper::toResponse);
     }
 
     public BookResponse findById(Integer id) {
