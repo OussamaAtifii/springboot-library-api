@@ -8,6 +8,8 @@ import com.atifi.library.review.dto.response.ReviewResponse;
 import com.atifi.library.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +31,8 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping
-    public ResponseEntity<List<ReviewResponse>> findAll(@ModelAttribute ReviewFilter filters) {
-        List<ReviewResponse> reviews = reviewService.findAll(filters);
+    public ResponseEntity<Page<ReviewResponse>> findAll(@ModelAttribute ReviewFilter filters, Pageable pageable) {
+        Page<ReviewResponse> reviews = reviewService.findAll(filters, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(reviews);
     }
 

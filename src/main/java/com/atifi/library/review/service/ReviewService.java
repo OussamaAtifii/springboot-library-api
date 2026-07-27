@@ -12,6 +12,8 @@ import com.atifi.library.review.mapper.ReviewMapper;
 import com.atifi.library.review.model.Review;
 import com.atifi.library.review.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final BookRepository bookRepository;
 
-    public List<ReviewResponse> findAll(ReviewFilter filters) {
+    public Page<ReviewResponse> findAll(ReviewFilter filters, Pageable pageable) {
         Specification<Review> spec = Specification.where(minMaxRating(filters.minRating(), filters.maxRating())
                 .and(commentContains(filters.comment()))
                 .and(hasBookId(filters.bookId()))
@@ -37,8 +39,8 @@ public class ReviewService {
                 .and(hasComment(filters.hasComment()))
         );
 
-        List<Review> reviews = reviewRepository.findAll(spec);
-        return reviews.stream().map(ReviewMapper::toResponse).toList();
+        Page<Review> reviews = reviewRepository.findAll(spec, pageable);
+        return reviews.map(ReviewMapper::toResponse);
     }
 
     public List<ReviewResponse> findByBookId(Integer id) {
