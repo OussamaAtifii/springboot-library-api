@@ -8,6 +8,8 @@ import com.atifi.library.author.service.AuthorService;
 import com.atifi.library.constants.ApiConstants;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping(ApiConstants.AUTHORS_BASE)
 @RequiredArgsConstructor
@@ -29,8 +29,8 @@ public class AuthorController {
     private final AuthorService service;
 
     @GetMapping
-    public ResponseEntity<List<AuthorResponse>> findAll(@ModelAttribute AuthorFilter filters) {
-        List<AuthorResponse> authors = service.findAll(filters);
+    public ResponseEntity<Page<AuthorResponse>> findAll(@ModelAttribute AuthorFilter filters, Pageable pageable) {
+        Page<AuthorResponse> authors = service.findAll(filters, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(authors);
     }
 

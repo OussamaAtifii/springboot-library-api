@@ -9,10 +9,10 @@ import com.atifi.library.author.mapper.AuthorMapper;
 import com.atifi.library.author.model.Author;
 import com.atifi.library.author.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 import static com.atifi.library.author.repository.AuthorSpecifications.hasName;
 import static com.atifi.library.author.repository.AuthorSpecifications.hasStatus;
@@ -22,12 +22,12 @@ import static com.atifi.library.author.repository.AuthorSpecifications.hasStatus
 public class AuthorService {
     private final AuthorRepository repository;
 
-    public List<AuthorResponse> findAll(AuthorFilter filters) {
+    public Page<AuthorResponse> findAll(AuthorFilter filters, Pageable pageable) {
         Specification<Author> spec = Specification.where(hasName(filters.name()))
                 .and(hasStatus(filters.country()));
 
-        List<Author> authors = repository.findAll(spec);
-        return authors.stream().map(AuthorMapper::toResponse).toList();
+        Page<Author> authors = repository.findAll(spec, pageable);
+        return authors.map(AuthorMapper::toResponse);
     }
 
     public AuthorResponse findById(Integer id) {
