@@ -173,7 +173,6 @@ public class BookControllerTest {
                                     "isbn": "9780007458424",
                                     "publishedDate": "2026-07-28",
                                     "price": 99,
-                                    "authorId": 2
                                 }
                                 """)
                 )
@@ -196,7 +195,7 @@ public class BookControllerTest {
     }
 
     @Test
-    void shouldDeleteAuthor() throws Exception {
+    void shouldDeleteBook() throws Exception {
         mockMvc.perform(delete(ApiConstants.BOOKS_BASE + "/1"))
                 .andExpect(status().isNoContent());
 
