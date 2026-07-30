@@ -1,5 +1,6 @@
 package com.atifi.library.author.service;
 
+import com.atifi.library.author.dto.request.AuthorFilter;
 import com.atifi.library.author.dto.request.CreateAuthorRequest;
 import com.atifi.library.author.dto.request.UpdateAuthorRequest;
 import com.atifi.library.author.dto.response.AuthorResponse;
@@ -12,12 +13,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +38,35 @@ public class AuthorServiceTest {
 
     @InjectMocks
     AuthorService service;
+
+    @Test
+    void shouldFindAllAuthors() {
+        AuthorFilter filter = new AuthorFilter("Tolkien", "England");
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Author author = Author.builder()
+                .id(1)
+                .name("J. R. R. Tolkien")
+                .country("England")
+                .build();
+
+        Page<Author> page = new PageImpl<>(List.of(author));
+
+        when(repository.findAll(any(Specification.class), eq(pageable)))
+                .thenReturn(page);
+
+        Page<AuthorResponse> response = service.findAll(filter, pageable);
+
+        assertEquals(1, response.getTotalElements());
+
+        AuthorResponse authorResponse = response.getContent().getFirst();
+
+        assertEquals(1, authorResponse.id());
+        assertEquals("J. R. R. Tolkien", authorResponse.name());
+        assertEquals("England", authorResponse.country());
+
+        verify(repository).findAll(any(Specification.class), eq(pageable));
+    }
 
     @Test
     void shouldFindAuthorById() {
@@ -155,7 +192,7 @@ public class AuthorServiceTest {
     @Test
     void shouldDeleteAuthorById() {
         service.deleteById(1);
-        
+
         verify(repository).deleteById(1);
     }
 }
